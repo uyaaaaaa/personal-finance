@@ -1,13 +1,3 @@
 # project
 .cursor/local/*
 .env
-
-# backend
-backend/*.exe
-backend/*.exe~
-backend/*.dll
-backend/*.so
-backend/*.dylib
-backend/*.test
-backend/*.log
-backend/vendor/
