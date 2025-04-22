@@ -22,11 +22,11 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
         <h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
-          ログイン
+          Sign in
         </h2>
 
         <div className="mb-6 text-center text-gray-600">
-          <p className="mb-4">Google アカウントでログインしてください</p>
+          <p className="mb-4">Integrate with external services</p>
           <button
             type="button"
             onClick={handleGoogleSignIn}
@@ -40,7 +40,7 @@ export default function LoginPage() {
                 <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/>
               </g>
             </svg>
-            Googleでログイン
+            Sign in with Google
           </button>
         </div>
       </div>
