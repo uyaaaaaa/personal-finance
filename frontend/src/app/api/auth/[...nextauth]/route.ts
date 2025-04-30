@@ -9,13 +9,6 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
-      // アクセストークンをJWTに保存
-      if (account) {
-        token.accessToken = account.access_token;
-      }
-      return token;
-    },
     async session({ session, token }) {
       // セッションにアクセストークンを追加
       session.accessToken = token.accessToken;
