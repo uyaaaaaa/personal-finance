@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -8,9 +8,9 @@ export default function LoginPage() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (session) {
-      router.push('/dashboard'); // ログイン後のリダイレクト先
+      router.push('/dashboard');
     }
   }, [session, router]);
 
