@@ -6,3 +6,5 @@ build:
 down:
 	docker compose down
 	supabase stop
+ps:
+	docker compose ps
