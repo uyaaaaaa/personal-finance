@@ -1,10 +1,10 @@
 up:
-	docker compose up -d
+	docker-compose -f ./backend/docker-compose.yml up -d api
 	supabase start
 build:
-	docker compose up --build -d
+	docker-compose -f ./backend/docker-compose.yml up --build -d api
 down:
-	docker compose down
+	docker-compose -f ./backend/docker-compose.yml down api
 	supabase stop
 ps:
-	docker compose ps
+	docker-compose -f ./backend/docker-compose.yml ps api
