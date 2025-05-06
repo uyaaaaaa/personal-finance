@@ -5,11 +5,11 @@ FROM golang:1.24-alpine AS builder
 WORKDIR /app
 
 # Copy dependencies of modules
-COPY ./backend/go.*  ./
+COPY ./go.*  ./
 RUN go mod download
 
 # Copy source code
-COPY ./backend .
+COPY . .
 
 # Build applications
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server ./cmd/api/main.go
