@@ -7,6 +7,6 @@ end_of_line = lf
 insert_final_newline = true
 
 # Common settings for JavaScript, TypeScript, JSON, and text files
-[*.{js,ts,json}]
+[*.{ts,tsx,json}]
 indent_style = space
 indent_size = 2
