@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { metadata } from "./metadata";
+"use client";
 
 export default function HomePage() {
   return (
