@@ -1,6 +1,6 @@
 up:
-	docker compose -f ./backend/docker-compose.yml up -d api
 	supabase start
+	docker compose -f ./backend/docker-compose.yml up -d api
 build:
 	docker compose -f ./backend/docker-compose.yml up --build -d api
 down:
