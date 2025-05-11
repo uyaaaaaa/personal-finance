@@ -46,14 +46,6 @@ func main() {
 	})
 
 	r.GET("/health", func(c *gin.Context) {
-		err := pool.Ping(context.Background())
-		if err != nil {
-			c.JSON(http.StatusServiceUnavailable, gin.H{
-				"status": "unhealthy",
-				"error":  "Database connection failed",
-			})
-			return
-		}
 		c.JSON(http.StatusOK, gin.H{
 			"status": "healthy",
 		})
