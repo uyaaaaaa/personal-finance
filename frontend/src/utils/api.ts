@@ -1,5 +1,5 @@
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
-  const baseApiUrl = process.env.NEXT_PUBLIC_API_URL + '/api';
+  const baseApiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   try {
     const headers: Record<string, string> = {
