@@ -2,14 +2,10 @@ module github.com/uyaaaaaa/personal-finance
 
 go 1.24.2
 
-require (
-	github.com/gin-gonic/gin v1.10.0
-	github.com/golang-jwt/jwt/v4 v4.5.2
-	golang.org/x/oauth2 v0.29.0
-)
+require github.com/gin-gonic/gin v1.10.0
 
 require (
-	cloud.google.com/go/compute/metadata v0.3.0 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
