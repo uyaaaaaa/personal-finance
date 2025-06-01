@@ -3,8 +3,8 @@
 export default function HomePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold mb-6">家計簿アプリへようこそ</h1>
-      <p className="text-xl mb-8">あなたの家計をスマートに管理しましょう</p>
+      <h1 className="text-4xl font-bold mb-6">Welcome to Personal Finance!</h1>
+      <p className="text-xl mb-8">Mange your finance with smart tools.</p>
       <div className="flex gap-4">
         <a
           href="/login"
