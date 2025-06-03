@@ -2,7 +2,7 @@
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-900">
       <h1 className="text-4xl font-bold mb-6">Welcome to Personal Finance!</h1>
       <p className="text-xl mb-8">Mange your finance with smart tools.</p>
       <div className="flex gap-4">
