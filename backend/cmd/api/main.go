@@ -14,7 +14,6 @@ func main() {
 	// Database Connection
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		log.Println("Warning: DATABASE_URL environment variable not set. Using default or potentially failing.")
 		log.Fatalf("DATABASE_URL is required")
 	}
 

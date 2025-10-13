@@ -1,0 +1,63 @@
+services:
+  backend:
+    build: ./backend
+    container_name: personal-finance-backend
+    # The backend is accessed through nginx, so no port mapping to host is needed.
+    # It exposes port 8080 within the docker network.
+    expose:
+      - "8080"
+    networks:
+      - personal-finance-net
+    depends_on:
+      - postgres
+    # For production, create a .env file from the example
+    env_file:
+      - ./backend/.env
+
+  frontend:
+    build: ./frontend
+    container_name: personal-finance-frontend
+    # The frontend is accessed through nginx, so no port mapping to host is needed.
+    # It exposes port 3000 within the docker network.
+    expose:
+      - "3000"
+    networks:
+      - personal-finance-net
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:latest
+    container_name: personal-finance-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - personal-finance-net
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: personal-finance-postgres
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=personal_finance
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - personal-finance-net
+    # The postgres instance is not exposed to the host machine.
+    # It is only accessible to other services in the same docker network.
+    expose:
+      - "5432"
+
+networks:
+  personal-finance-net:
+    driver: bridge
+
+volumes:
+  postgres-data:

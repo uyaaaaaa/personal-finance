@@ -1,12 +1,12 @@
 up:
-	supabase start
-	docker compose -f ./backend/docker-compose.yml up -d
+	docker compose up --build -d
 build:
-	docker compose -f ./backend/docker-compose.yml up --build -d
+	docker compose build
 stop:
-	docker compose -f ./backend/docker-compose.yml stop
+	docker compose stop
 down:
-	docker compose -f ./backend/docker-compose.yml down
-	supabase stop
+	docker compose down
 ps:
-	docker compose -f ./backend/docker-compose.yml ps
+	docker compose ps
+log:
+	docker compose logs -f
