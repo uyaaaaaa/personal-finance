@@ -3,7 +3,10 @@
 # main の保護はこの hook が唯一の防御線となる。
 set -eu
 
-protected='refs/heads/main'
+# 既定ブランチ名は origin/HEAD から導出し、ruleset の ~DEFAULT_BRANCH と判定基準を揃える。
+default=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||' || true)
+[ -n "$default" ] || default='main'
+protected="refs/heads/$default"
 
 # pre-push は push 対象の ref を標準入力から受け取る。
 while read -r _local_ref _local_sha remote_ref _remote_sha; do

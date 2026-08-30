@@ -2,7 +2,9 @@
 # GitHub の ruleset と重複するが、hook は push を待たずコミット時点で止められる。
 set -eu
 
-protected='main'
+# 既定ブランチ名は origin/HEAD から導出し、ruleset の ~DEFAULT_BRANCH と判定基準を揃える。
+protected=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||' || true)
+[ -n "$protected" ] || protected='main'
 branch=$(git symbolic-ref --quiet --short HEAD || echo '')
 
 if [ "$branch" = "$protected" ]; then
