@@ -3,7 +3,7 @@ set -eu
 
 msg_file="$1"
 
-# git commit -v はメッセージファイルにコメント行と diff を書き込むため、除外して先頭行を取る。
+# git commit -v はメッセージファイルにコメント行と diff を書き込む。
 header=$(grep -v '^#' "$msg_file" | sed '/^[[:space:]]*$/d' | head -n 1 || true)
 
 if [ -z "$header" ]; then
@@ -27,9 +27,8 @@ if ! printf '%s' "$header" | grep -Eq "^($types)(\([a-z0-9._/-]+\))?!?: .+"; the
   exit 1
 fi
 
-# squash merge により main の各コミット件名が PR タイトルになるため、件名の慣行上限に収める。
-# wc -m はロケールによってバイト数を返し判定が揺れるため、
-# UTF-8 の継続バイトを除いたバイト数 = 文字数として数える。
+# squash merge により main の各コミット件名が PR タイトルになる。
+# wc -m はロケールによってバイト数を返し判定が揺れる。
 max=72
 len=$(printf '%s' "$header" | LC_ALL=C tr -d '\200-\277' | wc -c | tr -d ' ')
 if [ "$len" -gt "$max" ]; then

@@ -2,12 +2,11 @@
 # GitHub の ruleset と重複するが、hook はサーバに到達する前にローカルで止められる。
 set -eu
 
-# 既定ブランチ名は origin/HEAD から導出し、ruleset の ~DEFAULT_BRANCH と判定基準を揃える。
+# ruleset の ~DEFAULT_BRANCH と判定対象を揃える。
 default=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||' || true)
 [ -n "$default" ] || default='main'
 protected="refs/heads/$default"
 
-# pre-push は push 対象の ref を標準入力から受け取る。
 while read -r _local_ref _local_sha remote_ref _remote_sha; do
   [ -n "${remote_ref:-}" ] || continue
   if [ "$remote_ref" = "$protected" ]; then

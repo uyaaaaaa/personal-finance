@@ -2,7 +2,7 @@
 # GitHub の ruleset と重複するが、hook は push を待たずコミット時点で止められる。
 set -eu
 
-# 既定ブランチ名は origin/HEAD から導出し、ruleset の ~DEFAULT_BRANCH と判定基準を揃える。
+# ruleset の ~DEFAULT_BRANCH と判定対象を揃える。
 protected=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||' || true)
 [ -n "$protected" ] || protected='main'
 branch=$(git symbolic-ref --quiet --short HEAD || echo '')
@@ -13,17 +13,15 @@ if [ "$branch" = "$protected" ]; then
   exit 1
 fi
 
-# public リポジトリのため、秘密情報は一度コミットすれば取り消せない。
-# 検査対象は追加行のみとする。既存行は公開済みであり、ここで止めても手遅れである。
+# 検査対象は追加行のみ。既存行は公開済みであり、ここで止めても手遅れである。
 secret='gh[pousr]_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{22,}|sk-[A-Za-z0-9_-]{32,}|(AKIA|ASIA)[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{35}|xox[baprs]-[A-Za-z0-9-]{10,}|eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.|-----BEGIN [A-Z ]*PRIVATE KEY-----'
-# ドキュメント等に現れる形だけのトークンを誤検出しないための除外(大文字小文字は区別しない)。
 placeholder='x{4,}|example|placeholder|change_?me|dummy'
 
 git diff --cached --name-only --diff-filter=ACM | while IFS= read -r file; do
   [ -n "$file" ] || continue
 
   case "$file" in
-    # 雛形の値はプレースホルダであり、環境変数ファイル判定と秘密情報検査の両方から外す。
+    # 雛形は秘密情報検査からも外すため ;; ではなく continue とする。
     *.example|*.sample|*.template) continue ;;
     .env|.env.*|*/.env|*/.env.*)
       echo "pre-commit: 環境変数ファイルはコミットできません: $file" >&2

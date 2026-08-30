@@ -5,8 +5,7 @@ set -eu
 repo=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
 dir=$(dirname "$0")
 
-# main の履歴を 1 PR = 1 コミットに保つ。squash コミットの件名と本文は PR から生成し、
-# commit-msg hook が検証した件名が main の履歴に残るようにする。
+# 件名を PR から生成することで、commit-msg hook が検証した件名が main の履歴に残る。
 gh api -X PATCH "repos/$repo" \
   -F allow_squash_merge=true \
   -F allow_merge_commit=false \
