@@ -15,3 +15,14 @@ git 履歴に残る過去実装（Go + Next.js + docker-compose）は現在の�
   - 特定のファイル群を触るときだけ必要 → `paths` フロントマター付きの `.claude/rules/<category>.md`
   - どちらにも絞れない → このファイル。`paths` なしの `.claude/rules/` は CLAUDE.md と同じく常時ロードされるため、置き場所として使わない。
 - 検証コマンド（lint / test / build）は導入時にこのファイルへ追記する。作業完了は、そのコマンドの実行結果をもって判断する。
+
+## リポジトリ運用
+
+- git hooks はクローンごとに有効化する。設定しない限り `.githooks/` は動作しない。
+
+  ```
+  git config core.hooksPath .githooks
+  ```
+
+- GitHub 側の設定は `.github/repo-settings.sh` と `.github/ruleset-main.json` を正とし、その実行で反映する。管理画面での直接編集はスクリプトと乖離するため行わない。
+- public リポジトリであり、一度コミットした内容は取り消せない。家計の実データを作業ツリーに置かない。実データか否かは機械判定できず、hooks では防げない。

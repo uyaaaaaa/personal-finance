@@ -1,0 +1,16 @@
+#!/bin/sh
+# GitHub の branch ruleset は personal アカウントの private リポジトリでは enforce されない。
+# main の保護はこの hook が唯一の防御線となる。
+set -eu
+
+protected='refs/heads/main'
+
+# pre-push は push 対象の ref を標準入力から受け取る。
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  [ -n "${remote_ref:-}" ] || continue
+  if [ "$remote_ref" = "$protected" ]; then
+    echo "pre-push: $protected への直接 push は禁止されています。" >&2
+    echo "  トピックブランチを push し、PR を作成してください。" >&2
+    exit 1
+  fi
+done
