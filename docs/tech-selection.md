@@ -2,7 +2,7 @@
 
 ## スコープ
 
-本書は [要求定義](requirements.md) を上位文書とし、そこで定義された体験を実現する技術スタックと、機能の実現に不可欠な外部サービスを定義する。画面の設計は [デザイン要件定義](design-requirements.md) が定める。
+本書は、要求された体験を実現する技術スタックと、機能の実現に不可欠な外部サービスを定義する。
 
 以下は定義しない。
 
@@ -44,7 +44,13 @@ iOS / Android 両対応を単一コードベースで実現する。デザイン
 | 状態管理 | Riverpod（+ riverpod_lint） | 本アプリの状態はほぼ「API から取得した明細・回答結果の非同期状態」であり、FutureProvider 系がそのまま該当する。riverpod_lint により誤用を静的検査に載せる |
 | 毎晩の通知 | flutter_local_notifications | 通知は固定時刻・定型文であり、サーバー側の状態を参照しない。端末内スケジュールなら配信基盤という障害点を持たず、オフラインでも発火する。回答済みの夜の抑止も端末内で完結する |
 | 認証 | firebase_auth + sign_in_with_apple + google_sign_in | デザイン要件定義が定めるサインイン方式（Apple / Google のみ）を Firebase Auth がネイティブ対応する |
-| HTTP | http（標準パッケージ） | API は少数の JSON エンドポイントであり、インターセプタ等の追加機能を要しない |
+| HTTP | dio | API クライアントを OpenAPI 仕様から生成するため、生成器が前提とする HTTP ライブラリに従う。ID トークンの付与と認証エラーの処理を interceptor 1 箇所に集約できる |
+
+### API クライアントの生成
+
+`mobile/lib/api/` は、サーバーが出力する OpenAPI 仕様から生成する。手書きしない。
+
+生成物はコミットし、仕様との一致は再生成して差分が空であることで検査する。契約の一致という決定論的な事項を、両側の手書きコードのレビューに委ねないためである。
 
 ### 端末側にデータベースを持たない
 
@@ -54,7 +60,7 @@ iOS / Android 両対応を単一コードベースで実現する。デザイン
 
 ### Cloudflare Workers + TypeScript + Hono
 
-API・メール受信・解析のすべてを Cloudflare Workers 上の TypeScript で実装する。ルーティングとミドルウェア（認証トークン検証を含む）は Hono を使う。Workers を選ぶ決め手はメール受信で、Email Routing + Email Workers により、転送されてきたメールを外部のメール受信サービスを介さずコードで直接受けられる。
+API・メール受信・解析のすべてを Cloudflare Workers 上の TypeScript で実装する。ルーティングとミドルウェア（認証トークン検証を含む）は Hono を使い、ルート定義は `@hono/zod-openapi` で行う。1つの zod スキーマから入力検証・型・OpenAPI 仕様が同時に得られ、境界の規定を文書ではなくスキーマに置ける。Workers を選ぶ決め手はメール受信で、Email Routing + Email Workers により、転送されてきたメールを外部のメール受信サービスを介さずコードで直接受けられる。
 
 ### メール受信
 
@@ -80,6 +86,21 @@ LLM ではなく固定パーサとするのは次の理由による。
 
 API は Firebase Auth が発行した ID トークンを Hono のミドルウェアで JWT 検証し、トークン内のユーザー ID で全クエリを絞る。ユーザー間のデータ隔離（要求定義「データの取り扱い」）はこの検証を通らない経路が存在しないことで満たす。
 
+## API 契約の生成
+
+API の契約は `server/` の zod スキーマを唯一の正とし、そこから OpenAPI 仕様を出力して Dart クライアントを生成する。
+
+```
+zod スキーマ（server） → OpenAPI 仕様 → Dart クライアント（mobile/lib/api/）
+                       ↘ 入力検証・型（server）
+```
+
+クライアントが Dart であるため、Hono の RPC による型共有は使えない。OpenAPI を経由することで、金額が整数であること・日付の書式といった境界の規定が、両側で同じ定義から導かれる。
+
+## 依存方向の検査
+
+`server/` のディレクトリ間の依存方向は dependency-cruiser で検査する。Biome の lint は「どこから import したか」で分ける規則を持たないため、一律禁止の表現に限って併用する。
+
 ## 外部サービス
 
 | サービス | 用途 | 範囲の限定 |
@@ -100,21 +121,18 @@ API は Firebase Auth が発行した ID トークンを Hono のミドルウェ
 ```
 mobile/   Flutter アプリ
 server/   Workers（API・Email Worker・パーサ）
+scripts/  検証スクリプト
 docs/     ドキュメント
 ```
 
 web フロントエンドとインフラ定義を導入する場合も、`web/`・`infra/` として同列に追加する。TypeScript のワークスペース機構は、TS パッケージが `server/` の1つである間は置かない。
 
-## 検証コマンド
+## 検証
 
-作業完了は次のコマンドの実行結果で判断する（CLAUDE.md「制約とコンテキストの置き場所」）。
+作業完了は `./scripts/check` の実行結果で判断する。CI も同じスクリプトを実行する。
 
-| 対象 | コマンド | ツール |
-|---|---|---|
-| mobile | 静的検査 | flutter analyze + custom_lint |
-| mobile | フォーマット | dart format |
-| mobile | テスト | flutter test |
-| server | 静的検査・フォーマット | Biome |
-| server | テスト | Vitest |
+検査の一覧を文書に置かず、スクリプト1つに集約する。コンポーネントを追加したときは、その検査をスクリプトへ加える。
 
-server のテストは2層に分ける。バインディングに依存しない対象（パーサ、ハンドラの入力検証）は Hono の `app.request()` で通常の Vitest として実行し、D1・Email を実際に使う対象のみ @cloudflare/vitest-pool-workers で Workers ランタイム上で実行する。テストの大半を高速な前者に寄せるための分離である。
+スクリプトが束ねる検査は、静的検査・フォーマット・型検査・テストに加え、依存方向の検査と、生成物を再生成したときの差分が空であることを含む。
+
+server のテストは2層に分ける。バインディングに依存しない対象は Hono の `app.request()` で通常の Vitest として実行し、D1・Email を実際に使う対象のみ @cloudflare/vitest-pool-workers で Workers ランタイム上で実行する。テストの大半を高速な前者に寄せるための分離である。
