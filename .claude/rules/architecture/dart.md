@@ -7,7 +7,7 @@ paths:
 
 ## スコープ
 
-本規約は `mobile/` 配下の Dart コードのアーキテクチャ（レイヤ・依存方向・ディレクトリ構成・状態の表現）を定義する。コーディングの判断基準は `.claude/rules/coding/dart.md` が、サーバーとの境界で受け渡す値と語彙は `.claude/rules/architecture/api.md` が、技術スタックの選定理由は `docs/tech-selection.md` が、画面の仕様は `docs/design-requirements.md` が定める。
+本規約は `mobile/` 配下の Dart コードのアーキテクチャ（レイヤ・依存方向・ディレクトリ構成・状態の表現）を定義する。コーディングの判断基準は `.claude/rules/coding/dart.md` が、両側にまたがる決定（用語・1日の境界・API の互換性・生成物の扱い）は `.claude/rules/coding/common.md` が、技術スタックの選定理由は `docs/tech-selection.md` が、画面の仕様は `docs/design-requirements.md` が定める。
 
 個々の画面の Provider 構成や具体的なファイル名は定義しない。実装コードそのものが正となる。
 
@@ -16,12 +16,9 @@ paths:
 UI（Widget）→ 状態（Riverpod Provider）→ API クライアント の一方向とする。
 
 * Widget は Provider の watch と操作の呼び出しのみを行い、API クライアントを直接呼ばない
-* API クライアントは Flutter にも Riverpod にも依存しない純粋 Dart とする。依存は http と標準ライブラリのみ
 * 下位層から上位層への import を禁止する
 
-API クライアントを純粋 Dart に保つのは、通信境界の検証を Flutter ランタイムなしの unit test で書けるようにするためである。
-
-Flutter に依存しない判定・計算（入力値の検証、表示用の整形など）も、Widget や Provider の中に書かず純粋 Dart の関数として分離する。理由は同じくテスト方針（`.claude/rules/coding/dart.md`）による。
+Flutter に依存しない判定・計算（入力値の検証、表示用の整形など）は、Widget や Provider の中に書かず純粋 Dart の関数として分離する。理由はテスト方針（`.claude/rules/coding/dart.md`）による。
 
 ## ディレクトリ構成
 
@@ -30,8 +27,8 @@ feature-first とする。トップレベルを層（widgets / providers）で�
 ```
 mobile/lib/
   features/<feature>/   画面の Widget と、その画面に閉じる Provider
-  core/                 複数の feature が使う Provider・関数と、画面に属さない端末機能（ローカル通知、サインイン状態）
-  api/                  API クライアントとリクエスト・レスポンス型
+  core/                 複数の feature が使う Provider・関数と、画面に属さない端末機能（ローカル通知、サインイン状態、HTTP の interceptor）
+  api/                  OpenAPI 仕様から生成した API クライアント
 ```
 
 feature は画面のまとまり単位で切る。層で切らないのは、1つの画面の変更が1ディレクトリで閉じることを優先するためである。
@@ -40,10 +37,19 @@ feature 同士は import しない。複数の feature から参照される Pro
 
 `core/` は features を import しない。共有物が特定の画面を知ると依存が双方向になり、同じ理由で影響範囲が読めなくなる。
 
+## API クライアント
+
+* `api/` はサーバーが出力する OpenAPI 仕様からの生成物とし、手で編集しない（`.claude/rules/coding/common.md`「生成物の扱い」）
+* `features/` と `core/` は、HTTP を `api/` の生成クライアント経由でのみ行う。dio を直接 import しない。通信経路が生成物の外に増えると、契約が保証される範囲が読み取れなくなるためである
+* 生成クライアントは Flutter・Riverpod・firebase_auth に依存しない。依存すべき対象が生成物の出力に現れた場合は、呼び出し側で包むのではなく生成設定を直す
+
 ## 認証トークンの受け渡し
 
-* API クライアントは firebase_auth に依存しない。ID トークンは呼び出し側の Provider が取得し、引数として渡す。クライアントを純粋 Dart に保つ条件であり、テストではトークンを固定値で与えられる
-* トークン失効（API が認証エラーを返した場合）の扱いは `core/` のサインイン状態が一箇所で受ける。画面ごとに分岐を置くと、扱い漏れた画面だけが空表示になり、原因が失効であることも読み取れないためである
+* ID トークンの付与は、`core/` が定義した HTTP の interceptor が行う。Provider や Widget が Authorization ヘッダを組み立てない
+* トークン失効（サーバーが認証エラーを返した場合）も同じ interceptor が受け、`core/` のサインイン状態へ倒す。画面ごとに分岐を置くと、扱い漏れた画面だけが空表示になり、原因が失効であることも読み取れないためである
+* interceptor は生成クライアントが持つ HTTP インスタンスへ注入する。生成物そのものは編集しない
+
+トークンの取得が関数シグネチャに現れなくなるため、「認証が要るかどうか」は呼び出しごとの判断ではなくクライアント全体の性質として固定する。アプリからの通信はすべてトークン付きとする。
 
 ## Provider の使い分け
 
@@ -70,8 +76,9 @@ feature 同士は import しない。複数の feature から参照される Pro
 | 対象 | 固定の手段 |
 |---|---|
 | feature 間の import と、`core/` から `features/` への import | `lib/` の import を走査するテスト |
-| `api/` が Flutter・Riverpod・firebase_auth に依存しないこと | 同上 |
-| Provider の誤用 | riverpod_lint（`.claude/rules/coding/dart.md`） |
+| `features/` と `core/` が HTTP ライブラリを直接 import しないこと | 同上 |
 | 排他的状態の分岐漏れ | sealed class に対する switch の網羅性検査 |
+| Provider の誤用 | riverpod_lint（`.claude/rules/coding/dart.md`） |
+| 生成クライアントと OpenAPI 仕様の一致 | 再生成して差分が空であること |
 
 依存方向の検査は、`mobile/` に最初のコードを置く時点で同時に用意する。検査を伴わない依存規約は、セッションをまたぐと守られないためである。
