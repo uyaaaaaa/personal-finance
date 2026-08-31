@@ -7,7 +7,7 @@ paths:
 
 ## スコープ
 
-本規約は `mobile/` 配下の Dart コードのアーキテクチャ（レイヤ・依存方向・ディレクトリ構成・状態の表現）を定義する。コーディングの判断基準は `.claude/rules/coding/dart.md` が、両側にまたがる決定（用語・1日の境界・API の互換性・生成物の扱い）は `.claude/rules/coding/common.md` が、技術スタックの選定理由は `docs/tech-selection.md` が、画面の仕様は `docs/design-requirements.md` が定める。
+本規約は `mobile/` 配下の Dart コードのアーキテクチャ（レイヤ・依存方向・ディレクトリ構成・状態の表現）を定義する。
 
 個々の画面の Provider 構成や具体的なファイル名は定義しない。実装コードそのものが正となる。
 
@@ -18,7 +18,7 @@ UI（Widget）→ 状態（Riverpod Provider）→ API クライアント の一
 * Widget は Provider の watch と操作の呼び出しのみを行い、API クライアントを直接呼ばない
 * 下位層から上位層への import を禁止する
 
-Flutter に依存しない判定・計算（入力値の検証、表示用の整形など）は、Widget や Provider の中に書かず純粋 Dart の関数として分離する。理由はテスト方針（`.claude/rules/coding/dart.md`）による。
+Flutter に依存しない判定・計算（入力値の検証、表示用の整形など）は、Widget や Provider の中に書かず純粋 Dart の関数として分離する。Flutter ランタイムを起動しない unit test で検証できるようにするためである。
 
 ## ディレクトリ構成
 
@@ -39,7 +39,7 @@ feature 同士は import しない。複数の feature から参照される Pro
 
 ## API クライアント
 
-* `api/` はサーバーが出力する OpenAPI 仕様からの生成物とし、手で編集しない（`.claude/rules/coding/common.md`「生成物の扱い」）
+* `api/` はサーバーが出力する OpenAPI 仕様からの生成物とし、手で編集しない
 * `features/` と `core/` は、HTTP を `api/` の生成クライアント経由でのみ行う。dio を直接 import しない。通信経路が生成物の外に増えると、契約が保証される範囲が読み取れなくなるためである
 * 生成クライアントは Flutter・Riverpod・firebase_auth に依存しない。依存すべき対象が生成物の出力に現れた場合は、呼び出し側で包むのではなく生成設定を直す
 
@@ -78,7 +78,7 @@ feature 同士は import しない。複数の feature から参照される Pro
 | feature 間の import と、`core/` から `features/` への import | `lib/` の import を走査するテスト |
 | `features/` と `core/` が HTTP ライブラリを直接 import しないこと | 同上 |
 | 排他的状態の分岐漏れ | sealed class に対する switch の網羅性検査 |
-| Provider の誤用 | riverpod_lint（`.claude/rules/coding/dart.md`） |
+| Provider の誤用 | riverpod_lint |
 | 生成クライアントと OpenAPI 仕様の一致 | 再生成して差分が空であること |
 
 依存方向の検査は、`mobile/` に最初のコードを置く時点で同時に用意する。検査を伴わない依存規約は、セッションをまたぐと守られないためである。

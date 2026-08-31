@@ -8,11 +8,11 @@ paths:
 
 ## スコープ
 
-本規約は `mobile/` と `server/` の双方に適用される、言語に依存しない判断基準と、両側にまたがる決定を定義する。言語ごとの基準と、その言語で機械検査が担う範囲は `.claude/rules/coding/dart.md` および `.claude/rules/coding/typescript.md` が定める。
+本規約は `mobile/` と `server/` の双方に適用される、言語に依存しない判断基準と、両側にまたがる決定を定義する。
 
-API のリクエスト・レスポンスの構造と、そこに現れる値の表現は定義しない。`server/` の zod スキーマが唯一の正であり、そこから生成された OpenAPI 仕様と Dart クライアントが従う（`.claude/rules/architecture/typescript.md`「契約の生成」）。
+API のリクエスト・レスポンスの構造と、そこに現れる値の表現は定義しない。`server/` の zod スキーマが唯一の正であり、そこから生成された OpenAPI 仕様と Dart クライアントが従う。
 
-ドキュメント（`*.md`）の記述規約は `.claude/skills/documentation/SKILL.md` が定める。本規約はコードのみを対象とする。
+本規約はコードのみを対象とし、ドキュメント（`*.md`）の記述は対象としない。
 
 ## 用語
 

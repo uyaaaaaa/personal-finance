@@ -7,7 +7,7 @@ paths:
 
 ## スコープ
 
-本規約は `server/` 配下の TypeScript コードのアーキテクチャ（ディレクトリ責務・依存方向・不変条件）を定義する。コーディングの判断基準は `.claude/rules/coding/typescript.md` が、両側にまたがる決定（用語・1日の境界・API の互換性・生成物の扱い）は `.claude/rules/coding/common.md` が、技術スタックの選定理由は `docs/tech-selection.md` が定める。
+本規約は `server/` 配下の TypeScript コードのアーキテクチャ（ディレクトリ責務・依存方向・不変条件）を定義する。
 
 API のエンドポイント定義とデータモデルの詳細は定義しない。zod スキーマと Drizzle スキーマ、およびテストが担う。
 
@@ -57,7 +57,7 @@ domain/
 
 * ルートは `@hono/zod-openapi` の `createRoute` でスキーマとともに定義し、`app.openapi(route, handler)` で結合する
 * リクエスト・レスポンスの構造と、そこに現れる値の表現は zod スキーマを唯一の正とする。同じ規定を文章の規約に置かない
-* OpenAPI 仕様と Dart クライアントはこのスキーマから生成する（生成物の扱いは `.claude/rules/coding/common.md`）
+* OpenAPI 仕様と Dart クライアントはこのスキーマから生成する
 
 境界の規定をスキーマに置くのは、それが決定論的に判定できる制約だからである（CLAUDE.md「制約とコンテキストの置き場所」）。文章の契約は両側の一致を検査できない。
 
@@ -117,7 +117,7 @@ domain/
 
 * スキーマ変更は「Drizzle スキーマ定義の変更 → マイグレーション SQL の生成 → 両方をコミット」を1セットで行う
 * 適用済みのマイグレーション SQL は編集しない。修正は新しいマイグレーションの追加で行う。マイグレーション SQL はデータモデルを他の SQL データベースへ持ち出すための可搬な成果物であり（技術選定「データベース」）、適用済みファイルの書き換えは適用履歴を環境間で分岐させる
-* 命名は DB 側 snake_case、TypeScript 側 camelCase とし、対応は Drizzle のカラム定義で明示する。語そのものは `.claude/rules/coding/common.md`「用語」に従う
+* 命名は DB 側 snake_case、TypeScript 側 camelCase とし、対応は Drizzle のカラム定義で明示する
 
 ## 機械検査で固定する範囲
 
