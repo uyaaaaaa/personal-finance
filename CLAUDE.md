@@ -4,7 +4,9 @@
 
 ## 索引
 
-git 履歴に残る過去実装（Go + Next.js + docker-compose）は現在の設計と無関係である。
+- `docs/` 要求定義・デザイン要件定義・デザインガイドライン・技術選定
+- `.claude/rules/` パスに応じて自動で適用される規約。本体を持たず誘導のみを担うものがある
+- `.claude/skills/` 規約の本体。`documentation`（*.md の記述）、`implementation`（実装の判断順序）、`simplification-review`（過剰実装レビュー）
 
 ## 制約
 
