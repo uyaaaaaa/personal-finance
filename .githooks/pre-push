@@ -1,8 +1,6 @@
 #!/bin/sh
-# GitHub の ruleset と重複するが、hook はサーバに到達する前にローカルで止められる。
 set -eu
 
-# ruleset の ~DEFAULT_BRANCH と判定対象を揃える。
 default=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||' || true)
 [ -n "$default" ] || default='main'
 protected="refs/heads/$default"

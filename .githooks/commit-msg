@@ -3,7 +3,6 @@ set -eu
 
 msg_file="$1"
 
-# git commit -v はメッセージファイルにコメント行と diff を書き込む。
 header=$(grep -v '^#' "$msg_file" | sed '/^[[:space:]]*$/d' | head -n 1 || true)
 
 if [ -z "$header" ]; then
@@ -27,8 +26,6 @@ if ! printf '%s' "$header" | grep -Eq "^($types)(\([a-z0-9._/-]+\))?!?: .+"; the
   exit 1
 fi
 
-# squash merge により main の各コミット件名が PR タイトルになる。
-# wc -m はロケールによってバイト数を返し判定が揺れる。
 max=72
 len=$(printf '%s' "$header" | LC_ALL=C tr -d '\200-\277' | wc -c | tr -d ' ')
 if [ "$len" -gt "$max" ]; then
