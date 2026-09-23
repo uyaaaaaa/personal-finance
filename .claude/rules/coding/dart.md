@@ -5,7 +5,7 @@ paths:
 
 # Dart / Flutter コーディング規約
 
-すべての原則は、Fluttter公式の [Guide to app architecture](https://docs.flutter.dev/app-architecture/guide) に従う。
+すべての原則は、Flutter公式の [Guide to app architecture](https://docs.flutter.dev/app-architecture/guide) に従う。
 
 ## テスト方針
 
