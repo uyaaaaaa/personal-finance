@@ -1,0 +1,111 @@
+{
+	"advisorModel": "fable",
+	"promptSuggestionEnabled": false,
+	"extraKnownMarketplaces": {
+		"personal-finance": { "source": { "source": "directory", "path": "./" } }
+	},
+	"enabledPlugins": { "issue-stance@personal-finance": true },
+	"deniedMcpServers": [
+		{ "serverName": "Gmail" },
+		{ "serverName": "Linear" },
+		{ "serverName": "Google_Drive" },
+		{ "serverName": "Google_Calendar" },
+		{ "serverName": "Slack" }
+	],
+	"skillOverrides": {
+		"pr": "off",
+		"code-review": "name-only",
+		"security-review": "name-only",
+		"claude-api": "name-only",
+		"artifact-design": "name-only",
+		"artifact-diagramming": "name-only",
+		"artifact-capabilities": "name-only",
+		"dataviz": "user-invocable-only",
+		"update-config": "user-invocable-only",
+		"keybindings-help": "user-invocable-only",
+		"simplify": "user-invocable-only",
+		"fewer-permission-prompts": "user-invocable-only",
+		"loop": "user-invocable-only",
+		"workflow-authoring": "user-invocable-only",
+		"run": "user-invocable-only",
+		"init": "user-invocable-only",
+		"anthropic-skills:docs": "user-invocable-only",
+		"anthropic-skills:docx": "user-invocable-only",
+		"anthropic-skills:pdf": "user-invocable-only",
+		"anthropic-skills:pptx": "user-invocable-only",
+		"anthropic-skills:xlsx": "user-invocable-only",
+		"anthropic-skills:skill-creator": "user-invocable-only",
+		"anthropic-skills:import-memory": "user-invocable-only"
+	},
+	"permissions": {
+		"allow": [
+			"Bash(git status)",
+			"Bash(git status:*)",
+			"Bash(git diff:*)",
+			"Bash(git log:*)",
+			"Bash(git show:*)",
+			"Bash(git branch:*)",
+			"Bash(git fetch origin:*)",
+			"Bash(git checkout -b claude/:*)",
+			"Bash(git add:*)",
+			"Bash(git commit:*)",
+			"Bash(git push -u origin claude/:*)",
+			"Bash(./scripts/check)",
+			"Bash(sh scripts/harness-journal.sh:*)",
+			"Bash(sh scripts/issue-shape.sh:*)",
+			"Bash(sh scripts/review-args.sh:*)",
+			"Bash(sh scripts/session-args.sh:*)",
+			"mcp__github__pull_request_read",
+			"mcp__github__get_file_contents",
+			"mcp__github__issue_read",
+			"mcp__github__list_issues",
+			"mcp__github__actions_list",
+			"mcp__github__actions_get",
+			"mcp__github__get_check_run",
+			"mcp__github__get_job_logs",
+			"mcp__github__subscribe_pr_activity",
+			"mcp__Claude_Code_Remote__set_session_title",
+			"mcp__Claude_Code_Remote__get_session"
+		]
+	},
+	"hooks": {
+		"UserPromptSubmit": [
+			{
+				"hooks": [{ "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/dispatch-guard.sh\"" }]
+			}
+		],
+		"PreToolUse": [
+			{
+				"matcher": "Read|Bash",
+				"hooks": [{ "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/delegate-read.sh\"" }]
+			},
+			{
+				"matcher": "Bash|mcp__github__.*",
+				"hooks": [{ "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/git-guard.sh\"" }]
+			},
+			{
+				"matcher": "mcp__github__(create|update)_pull_request",
+				"hooks": [{ "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/pr-guard.sh\"" }]
+			},
+			{
+				"matcher": "mcp__github__issue_write",
+				"hooks": [{ "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/issue-guard.sh\"" }]
+			},
+			{
+				"matcher": "mcp__.*__create_session",
+				"hooks": [{ "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/dispatch-guard.sh\"" }]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "mcp__.*__create_session",
+				"hooks": [{ "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/dispatch-guard.sh\"" }]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [{ "type": "command", "command": "sh \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-guard.sh\"" }]
+			}
+		]
+	}
+}

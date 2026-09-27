@@ -1,0 +1,12 @@
+{
+	"name": "personal-finance",
+	"owner": {
+		"name": "uyaaaaaa"
+	},
+	"plugins": [
+		{
+			"name": "issue-stance",
+			"source": "./plugin"
+		}
+	]
+}
