@@ -1,10 +1,6 @@
 {
 	"advisorModel": "fable",
 	"promptSuggestionEnabled": false,
-	"extraKnownMarketplaces": {
-		"personal-finance": { "source": { "source": "directory", "path": "./" } }
-	},
-	"enabledPlugins": { "issue-stance@personal-finance": true },
 	"deniedMcpServers": [
 		{ "serverName": "Gmail" },
 		{ "serverName": "Linear" },
