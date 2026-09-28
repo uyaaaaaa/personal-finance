@@ -1,3 +1,9 @@
 .claude/settings.local.json
 
 .DS_Store
+
+# review エージェントが review-args に渡す下書き
+.review.json
+
+# dispatch が issue の型を確かめるときの入力
+.verify
